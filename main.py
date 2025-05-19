@@ -1,21 +1,21 @@
-import os
 import asyncio
+import logging
+import os
 from aiogram import Bot, Dispatcher, types
+from aiogram.types import ParseMode
 
-TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+TELEGRAM_TOKEN = "6885132077:AAH..."
+CHAT_ID = "123456789"
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher()
-
-@dp.message()
-async def handle_message(message: types.Message):
-    await message.answer("Бот працює!")
+logging.basicConfig(level=logging.INFO)
+bot = Bot(token=TELEGRAM_TOKEN)
+dp = Dispatcher(bot)
 
 async def main():
-    print("Запуск бота...")
-    await bot.send_message(CHAT_ID, "Бот запущено!")
-    await dp.start_polling(bot)
+    await bot.send_message(chat_id=CHAT_ID, text="Бот успішно запущений.")
+    while True:
+        # Тут буде логіка перевірки токенів з DEX Screener
+        await asyncio.sleep(60)
 
 if __name__ == "__main__":
     asyncio.run(main())
