@@ -1,40 +1,47 @@
-import asyncio
 import os
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import ParseMode
-from aiogram.utils import executor
+import time
+import requests
+import telebot
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-bot = Bot(token=TELEGRAM_TOKEN)
-dp = Dispatcher(bot)
+bot = telebot.TeleBot(TOKEN)
 
-@dp.message_handler(commands=["start"])
-async def start_handler(message: types.Message):
-    await message.answer("Бот запущено. Очікуйте повідомлення кожну хвилину.")
+def get_token_data():
+    # Псевдодані для прикладу, заміни на реальні API-запити
+    return {
+        "token": "MOODENG",
+        "spread": "7.23%",
+        "mexc_link": "https://futures.mexc.com/exchange/MOODENG_USDT",
+        "dex_link": "https://dexscreener.com/solana/22wrmytj8x2trvqen3fxxi2r4rn6jdhwomtpssmn8rud",
+        "mexc_price": "0.310",
+        "dex_price": "0.327",
+        "deposit": "✅",
+        "withdraw": "✅",
+        "summary": "👍 - Profit"
+    }
 
-async def send_periodic_message():
-    await bot.wait_until_ready()
-    while True:
-        try:
-            text = (
-                "Token: MOODENG\n"
-                "🟢Long-Spread: 5.01%\n"
-                "MEXC: https://futures.mexc.com/exchange/MOODENG_USDT\n"
-                "DEX: https://dexscreener.com/solana/22wrmytj8x2trvqen3fxxi2r4rn6jdhwomtpssmn8rud\n"
-                "MEXC: 0.310605\n"
-                "DEX: 0.327\n"
-                "Deposit: ✅ Withdraw: ✅\n"
-                "👍 - Profit"
-            )
-            await bot.send_message(chat_id=CHAT_ID, text=text, parse_mode=ParseMode.HTML)
-        except Exception as e:
-            print("Error sending message:", e)
-        await asyncio.sleep(60)
-
-async def on_startup(_):
-    asyncio.create_task(send_periodic_message())
+def send_update():
+    data = get_token_data()
+    message = (
+        f"Token: {data['token']}\n"
+        f"🟢Long-Spread: {data['spread']}\n"
+        f"MEXC: {data['mexc_link']}\n"
+        f"DEX: {data['dex_link']}\n"
+        f"MEXC: {data['mexc_price']}\n"
+        f"DEX: {data['dex_price']}\n"
+        f"Deposit: {data['deposit']} Withdraw: {data['withdraw']}\n"
+        f"{data['summary']}"
+    )
+    bot.send_message(CHAT_ID, message)
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    print("Запуск бота...")
+    while True:
+        try:
+            send_update()
+            time.sleep(60)
+        except Exception as e:
+            print("Помилка:", e)
+            time.sleep(10)
